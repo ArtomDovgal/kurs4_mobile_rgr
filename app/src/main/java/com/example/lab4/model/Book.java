@@ -1,5 +1,8 @@
 package com.example.lab4.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.example.lab4.db.BookDBEntity;
 import com.example.lab4.network.BookNetworkEntity;
 import com.google.gson.annotations.SerializedName;
@@ -14,6 +17,8 @@ public class Book {
     private Integer numberOfPagesMedian;
 
     private Integer firstPublishYear;
+
+    private Bitmap image;
 
 
     public Book(String key, String title, String author, String rating,
@@ -73,5 +78,13 @@ public class Book {
 
     public Integer getFirstPublishYear() {
         return firstPublishYear;
+    }
+
+    public void setImage(Bitmap image){
+        this.image = image;
+    }
+
+    public Bitmap getImage() {
+        return image;
     }
 }

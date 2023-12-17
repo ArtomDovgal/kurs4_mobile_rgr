@@ -2,17 +2,15 @@ package com.example.lab4.details;
 
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.lab4.BaseViewModel;
 import com.example.lab4.model.Book;
 import com.example.lab4.model.Result;
 import com.example.lab4.services.Callback;
 import com.example.lab4.services.Cancellable;
-import com.example.lab4.services.TolkienBooksService;
+import com.example.lab4.services.BooksService;
 
 public class DetailsViewModel extends BaseViewModel {
 
@@ -22,8 +20,8 @@ public class DetailsViewModel extends BaseViewModel {
     private TextView title;
     private TextView author;
 
-    public DetailsViewModel(TolkienBooksService tolkienBooksService) {
-        super(tolkienBooksService);
+    public DetailsViewModel(BooksService booksService) {
+        super(booksService);
     }
 
     @Override

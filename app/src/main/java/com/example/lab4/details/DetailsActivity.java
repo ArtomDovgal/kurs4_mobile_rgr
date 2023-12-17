@@ -5,8 +5,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.lab4.App;
@@ -21,6 +25,11 @@ public class DetailsActivity extends AppCompatActivity {
             countWantToReadTextView,numberOfPagesMedianTextView,firstPublishYearTextView;
     private ProgressBar progressBar;
     private DetailsViewModel viewModel;
+    private ImageView imageView;
+
+    //private RatingBar ratingBar;
+
+    private Button toMainPageButton;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -34,6 +43,9 @@ public class DetailsActivity extends AppCompatActivity {
         numberOfPagesMedianTextView = findViewById(R.id.numberOfPagesMedianTextView);
         firstPublishYearTextView = findViewById(R.id.firstPublishYearTextView);
         progressBar = findViewById(R.id.progressBarDetails);
+        imageView = findViewById(R.id.imageView);
+        toMainPageButton = findViewById(R.id.button_to_main_page);
+        //ratingBar = findViewById(R.id.ratingBar);
         String bookKey = getIntent().getStringExtra(EXTRA_BOOK_ID);
         String bookAuthors = getIntent().getStringExtra(AUTHORS);
 
@@ -53,6 +65,7 @@ public class DetailsActivity extends AppCompatActivity {
             countWantToReadTextView.setText("");
             numberOfPagesMedianTextView.setText("");
             firstPublishYearTextView.setText("");
+            //imageView.setVisibility(View.INVISIBLE);
 
             switch (result.getStatus()){
 
@@ -65,6 +78,17 @@ public class DetailsActivity extends AppCompatActivity {
                     countWantToReadTextView.setText(R.string.count_want_to_read);
                     numberOfPagesMedianTextView.setText(R.string.number_of_pages_median);
                     firstPublishYearTextView.setText(R.string.first_publish_year);
+                    imageView.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    //ratingBar.setRating(Float.parseFloat(book.getRating()));
+
+                    if(book.getImage() != null) {
+                        imageView.setImageBitmap(book.getImage());
+
+                    }else{
+                        progressBar.setVisibility(View.INVISIBLE);
+                        imageView.setImageResource(R.drawable.image_not_found);
+                    }
 
                     if(book.getCountWantToRead()==0){
                         countWantToReadTextView.append("Information is missing");
@@ -97,5 +121,8 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
 
+        toMainPageButton.setOnClickListener(v -> {
+            getOnBackPressedDispatcher().onBackPressed();
+        });
     }
 }

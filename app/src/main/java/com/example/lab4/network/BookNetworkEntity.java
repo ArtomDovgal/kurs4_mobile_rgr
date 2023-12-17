@@ -24,9 +24,11 @@ public class BookNetworkEntity {
     @SerializedName("first_publish_year")
     private Integer firstPublishYear;
 
+    private String imageId;
+
 
     public BookNetworkEntity(String key, String title, String author, String rating,
-                             Integer countWantToRead, Integer numberOfPagesMedian, Integer firstPublishYear) {
+                             Integer countWantToRead, Integer numberOfPagesMedian, Integer firstPublishYear,String imageId) {
         this.key = key;
         this.title = title;
         this.author = author;
@@ -34,6 +36,7 @@ public class BookNetworkEntity {
         this.countWantToRead = countWantToRead;
         this.numberOfPagesMedian = numberOfPagesMedian;
         this.firstPublishYear = firstPublishYear;
+        this.imageId = imageId;
     }
 
     public String getKey() {
@@ -62,5 +65,9 @@ public class BookNetworkEntity {
 
     public Integer getFirstPublishYear() {
         return firstPublishYear;
+    }
+
+    public String getImageId(){
+        return imageId;
     }
 }

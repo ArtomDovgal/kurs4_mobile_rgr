@@ -6,24 +6,24 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.lab4.services.TolkienBooksService;
+import com.example.lab4.services.BooksService;
 
 import java.lang.reflect.Constructor;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
-    private TolkienBooksService tolkienBooksService;
+    private BooksService booksService;
 
-    public ViewModelFactory(TolkienBooksService tolkienBooksService) {
-        this.tolkienBooksService = tolkienBooksService;
+    public ViewModelFactory(BooksService booksService) {
+        this.booksService = booksService;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         try {
-            Constructor<T> constructor =  modelClass.getConstructor(TolkienBooksService.class);
-            return constructor.newInstance(tolkienBooksService);
+            Constructor<T> constructor =  modelClass.getConstructor(BooksService.class);
+            return constructor.newInstance(booksService);
         }catch (ReflectiveOperationException e){
             Log.e(this.getClass().getSimpleName(),"Error",e);
             RuntimeException exception = new RuntimeException();

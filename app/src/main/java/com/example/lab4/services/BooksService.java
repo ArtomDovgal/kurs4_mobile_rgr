@@ -1,7 +1,7 @@
 package com.example.lab4.services;
 
 
-import android.util.Log;
+import android.graphics.BitmapFactory;
 
 import com.annimon.stream.Stream;
 import com.example.lab4.db.BookDAO;
@@ -13,31 +13,30 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class TolkienBooksService {
-    private static  final String author = "tolkien";
-    private static final Integer limit = 3;
+public class BooksService {
+    private static final Integer limit = 25;
     private ExecutorService executorService;
     private BookDAO bookDAO;
     private LibraryApi libraryApi;
 
-    public TolkienBooksService(LibraryApi libraryApi,BookDAO bookDAO,ExecutorService executorService){
+    public BooksService(LibraryApi libraryApi, BookDAO bookDAO, ExecutorService executorService) {
         this.libraryApi = libraryApi;
         this.bookDAO = bookDAO;
         this.executorService = executorService;
     }
-    
+
     public Cancellable getBooks(String title, Callback<List<Book>> callback) {
-        Call<JsonObject> call = libraryApi.getBooks(title, author, limit);
+        Call<JsonObject> call = libraryApi.getBooks(title, limit);
         call.enqueue(new retrofit2.Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -47,14 +46,14 @@ public class TolkienBooksService {
 
                     List<BookNetworkEntity> newBooks = convertToBookNetworkEntity(docsArray);
                     List<BookDBEntity> newBooksDB = convertFromBookNetToDB(newBooks);
-                    bookDAO.updateBooks(author,newBooksDB);
+                    bookDAO.updateBooks(title, newBooksDB);
                     callback.onResult(convertFromBookNetToBook(newBooks));
                 } else {
                     List<BookDBEntity> booksDB = bookDAO.getBooks(title);
                     List<Book> books = convertFromBookBDtoBook(booksDB);
-                    if(books.isEmpty()){
+                    if (books.isEmpty()) {
                         callback.onError(new RuntimeException("RESPONSE ERROR"));
-                    }else{
+                    } else {
                         callback.onResult(books);
                     }
                 }
@@ -64,9 +63,9 @@ public class TolkienBooksService {
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 List<BookDBEntity> booksDB = bookDAO.getBooks(title);
                 List<Book> books = convertFromBookBDtoBook(booksDB);
-                if(books.isEmpty()){
+                if (books.isEmpty()) {
                     callback.onError(new RuntimeException("NETWORK ERROR"));
-                }else{
+                } else {
                     callback.onResult(books);
                 }
 
@@ -74,29 +73,56 @@ public class TolkienBooksService {
         });
         return call::cancel;
     }
-public Cancellable getBookByKey(String key,Callback<Book> callback){
-        Future<?> future = executorService.submit(()->{
-            try{
+
+    public Cancellable getBookByKey(String key, Callback<Book> callback) {
+        Future<?> future = executorService.submit(() -> {
+            try {
                 BookDBEntity bookDB = bookDAO.getBookByKey(key);
                 Book book = new Book(bookDB);
+                String serverAPI = "https://covers.openlibrary.org/b/isbn/";
+                String imageFullName = serverAPI.concat(bookDB.getImageId() + "-L.jpg?default=false");
+
+                Call<ResponseBody> call = libraryApi.getImageForBook(imageFullName);
+                call.enqueue(new retrofit2.Callback<ResponseBody>() {
+
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+
+                            InputStream inputStream = response.body().byteStream();
+                            book.setImage(BitmapFactory.decodeStream(inputStream));
+                            callback.onResult(book);
+                        } else {
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        book.setImage(null);
+                    }
+
+                });
+
                 callback.onResult(book);
-            }catch (Exception e){
+            } catch (Exception e) {
                 callback.onError(e);
             }
         });
 
-    return new FutureCancellable(future);
-}
+        return new FutureCancellable(future);
+    }
 
 
-private List<Book> convertFromBookNetToBook(List<BookNetworkEntity> entities) {
-    return Stream.of(entities).map(Book::new).toList();
-}
-private List<BookDBEntity> convertFromBookNetToDB(List<BookNetworkEntity> entities){
-    return Stream.of(entities).map(BookDBEntity::new).toList();
-}
-private List<Book> convertFromBookBDtoBook(List<BookDBEntity> entities){
-    return Stream.of(entities).map(Book::new).toList();
+    private List<Book> convertFromBookNetToBook(List<BookNetworkEntity> entities) {
+        return Stream.of(entities).map(Book::new).toList();
+    }
+
+    private List<BookDBEntity> convertFromBookNetToDB(List<BookNetworkEntity> entities) {
+        return Stream.of(entities).map(BookDBEntity::new).toList();
+    }
+
+    private List<Book> convertFromBookBDtoBook(List<BookDBEntity> entities) {
+        return Stream.of(entities).map(Book::new).toList();
     }
 
     private List<BookNetworkEntity> convertToBookNetworkEntity(JsonArray docsArray) {
@@ -106,18 +132,17 @@ private List<Book> convertFromBookBDtoBook(List<BookDBEntity> entities){
             String key = docObject.get("key").getAsString();
             String title = docObject.get("title").getAsString();
             String author = getAuthorsAsString(docObject);
-            Integer year = docObject.has("first_publish_year") ?
-                    docObject.getAsJsonPrimitive("first_publish_year").getAsInt() : 0;
-            String rating = docObject.has("ratings_average") ?
-                    docObject.getAsJsonPrimitive("ratings_average").getAsString() : "---";
-            Integer countWantToRead = docObject.has("want_to_read_count") ?
-                    docObject.getAsJsonPrimitive("want_to_read_count").getAsInt() : 0;
-            Integer numberOfPagesMedian = docObject.has("number_of_pages_median") ?
-                    docObject.getAsJsonPrimitive("number_of_pages_median").getAsInt() : 0;
-            books.add(new BookNetworkEntity(key, title, author,rating,countWantToRead,numberOfPagesMedian,year));
+            String isnbImageId = docObject.has("isbn") ? docObject.getAsJsonArray("isbn").get(1).getAsString() : "";
+
+            Integer year = docObject.has("first_publish_year") ? docObject.getAsJsonPrimitive("first_publish_year").getAsInt() : 0;
+            String rating = docObject.has("ratings_average") ? docObject.getAsJsonPrimitive("ratings_average").getAsString() : "---";
+            Integer countWantToRead = docObject.has("want_to_read_count") ? docObject.getAsJsonPrimitive("want_to_read_count").getAsInt() : 0;
+            Integer numberOfPagesMedian = docObject.has("number_of_pages_median") ? docObject.getAsJsonPrimitive("number_of_pages_median").getAsInt() : 0;
+            books.add(new BookNetworkEntity(key, title, author, rating, countWantToRead, numberOfPagesMedian, year, isnbImageId));
         }
         return books;
     }
+
     private String getAuthorsAsString(JsonObject docObject) {
         JsonArray authorArray = docObject.getAsJsonArray("author_name");
 
@@ -131,6 +156,7 @@ private List<Book> convertFromBookBDtoBook(List<BookDBEntity> entities){
             return "";
         }
     }
+
     static class FutureCancellable implements Cancellable {
         private Future<?> future;
 

@@ -1,15 +1,14 @@
 package com.example.lab4.db;
 
 import androidx.room.Dao;
+import androidx.room.Database;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import com.example.lab4.model.Book;
-
 import java.util.List;
 
-@Dao
+@Dao()
 public interface BookDAO {
 
     @Query("SELECT * FROM books WHERE title LIKE '%' || :title || '%' COLLATE NOCASE")
@@ -20,11 +19,15 @@ public interface BookDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertBookList(List<BookDBEntity> books);
 
-    @Query("DELETE FROM books WHERE authors = :authors")
-    void deleteBookByKey(String authors);
+    @Query("DELETE FROM books WHERE title LIKE '%' || :title || '%' COLLATE NOCASE")
+    void deleteBooksByTitle(String title);
+    @Query("DELETE FROM books WHERE key =  :key ")
+    void deleteBookByKey(String key);
 
-    default void updateBooks(String authors, List<BookDBEntity> books){
-        deleteBookByKey(authors);
+
+    default void updateBooks(String title, List<BookDBEntity> books){
+        deleteBooksByTitle(title);
         insertBookList(books);
     }
+
 }

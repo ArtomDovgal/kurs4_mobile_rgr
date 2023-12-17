@@ -8,12 +8,11 @@ import androidx.room.Room;
 import com.example.lab4.db.AppDB;
 import com.example.lab4.db.BookDAO;
 import com.example.lab4.network.LibraryApi;
-import com.example.lab4.services.TolkienBooksService;
+import com.example.lab4.services.BooksService;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import okhttp3.OkHttp;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -39,8 +38,8 @@ public void onCreate(){
     ExecutorService executorService = Executors.newCachedThreadPool();
     AppDB appDB = Room.databaseBuilder(this, AppDB.class,"database.db").allowMainThreadQueries().build();
     BookDAO bookDAO = appDB.getBookBAO();
-    TolkienBooksService tolkienBooksService = new TolkienBooksService(libraryApi,bookDAO,executorService);
-    viewModelFactory = new ViewModelFactory(tolkienBooksService);
+    BooksService booksService = new BooksService(libraryApi,bookDAO,executorService);
+    viewModelFactory = new ViewModelFactory(booksService);
 }
 
 public ViewModelProvider.Factory getViewModelFactory(){

@@ -24,9 +24,10 @@ public class BookDBEntity {
     private Integer numberOfPagesMedian;
     @ColumnInfo(name = "first_publish_year")
     private Integer firstPublishYear;
+    private String imageId;
 
     public BookDBEntity(String key, String title, String authors, String rating,
-                        Integer countWantToRead, Integer numberOfPagesMedian, Integer firstPublishYear) {
+                        Integer countWantToRead, Integer numberOfPagesMedian, Integer firstPublishYear,String imageId) {
         this.key = key;
         this.title = title;
         this.authors = authors;
@@ -34,6 +35,7 @@ public class BookDBEntity {
         this.countWantToRead = countWantToRead;
         this.numberOfPagesMedian = numberOfPagesMedian;
         this.firstPublishYear = firstPublishYear;
+        this.imageId = imageId;
     }
 
     public BookDBEntity(BookNetworkEntity bookNetworkEntity) {
@@ -44,6 +46,9 @@ public class BookDBEntity {
         this.countWantToRead = bookNetworkEntity.getCountWantToRead();
         this.numberOfPagesMedian = bookNetworkEntity.getNumberOfPagesMedian();
         this.firstPublishYear = bookNetworkEntity.getFirstPublishYear();
+        this.imageId = bookNetworkEntity.getImageId();
+
+
     }
 
     public String getKey() {
@@ -76,5 +81,13 @@ public class BookDBEntity {
 
     public String getAuthors() {
         return authors;
+    }
+
+    public String getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
     }
 }

@@ -38,7 +38,6 @@ private BookAdapter adapter;
         nameEditText = findViewById(R.id.bookTitleEditText);
         progress = findViewById(R.id.progressBarDetails);
         emptyList = findViewById(R.id.emptyList);
-        //!!!------------------------------------
         errorTextView = findViewById(R.id.errorTextView);
 
         App app = (App) getApplication();

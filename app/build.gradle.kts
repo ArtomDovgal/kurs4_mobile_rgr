@@ -59,4 +59,5 @@ dependencies {
     implementation("com.annimon:stream:1.2.2")
 
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.squareup.picasso:picasso:2.71828")
 }

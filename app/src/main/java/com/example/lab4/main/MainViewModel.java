@@ -2,16 +2,14 @@ package com.example.lab4.main;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.lab4.BaseViewModel;
 import com.example.lab4.model.Book;
 import com.example.lab4.model.Result;
 import com.example.lab4.services.Callback;
 import com.example.lab4.services.Cancellable;
-import com.example.lab4.services.TolkienBooksService;
+import com.example.lab4.services.BooksService;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class MainViewModel extends BaseViewModel {
@@ -24,8 +22,8 @@ public class MainViewModel extends BaseViewModel {
        updateViewState(Result.empty());
     }
 
-    public MainViewModel(TolkienBooksService tolkienBooksService) {
-        super(tolkienBooksService);
+    public MainViewModel(BooksService booksService) {
+        super(booksService);
     }
 
     @Override
